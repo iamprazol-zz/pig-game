@@ -4,6 +4,8 @@ let scores, roundScore, activePlayer, gamePlaying;
 // Initialize the game
 init();
 
+let lastDice;
+
 document.querySelector('.btn-roll').addEventListener('click', function () {
     // Check if Game is being played or not
     if(gamePlaying){
@@ -16,14 +18,22 @@ document.querySelector('.btn-roll').addEventListener('click', function () {
         diceDOM.src = 'dice-' + dice +'.png';
 
         // 3. Update the round score IF the rolled number was NOT a 1
-        if( dice !== 1){
-            // 3.1 Add score
+        if(dice === 6 && lastDice === 6){
+            // 3.1 Player Looses score
+            scores[activePlayer] = 0;
+            document.getElementById('score-' + activePlayer).textContent = '0';
+            nextPlayer();
+
+        } else if( dice !== 1){
+            // 3.2 Add score
             roundScore += dice;
             document.querySelector('#current-' + activePlayer).textContent = roundScore;
         } else {
-            // 3.2 Next Player
+            // 3.3 Next Player
             nextPlayer();
         }
+
+        lastDice = dice;
     }
 
 });
@@ -36,8 +46,18 @@ document.querySelector('.btn-hold').addEventListener('click', function () {
         // 2. Update the UI
         document.getElementById('score-' + activePlayer).textContent = scores[activePlayer];
 
+        let input = document.querySelector('.final-score').value;
+        let winningScore
+
+        // Undefined, 0, null or "" are coerced to false
+        // Anything else are coerced to true
+        if(input){
+            winningScore = input;
+        } else {
+            winningScore = 100;
+        }
         // 3. Check if the player won the game
-        if (scores[activePlayer] >= 20) {
+        if (scores[activePlayer] >= winningScore) {
             document.getElementById('name-' + activePlayer).textContent = 'WINNER!';
             document.querySelector('.dice').style.display = 'none';
             document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner');
